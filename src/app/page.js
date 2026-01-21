@@ -1,18 +1,23 @@
 "use client";
-import React, { useEffect } from 'react'
+import React, { useEffect,useState } from "react";
 
 export default function page() {
+  const [movies, setMovies] = useState([]);
+  const [page, setPage] = useState(1);
 
-  const [movies, setMovies] = React.useState([]);
-  const getMovies = async () => {
-    const res = await fetch('/api/movies');
+  const getMovies = async (pageNum = 1) => {
+    const res = await fetch(`/api/movies?page=${pageNum}&limit=21`)
     const movies = await res.json();
-    setMovies(movies);
-  }
+     setMovies(prev => [...prev, ...movies]);
+  };
 
   useEffect(() => {
-    getMovies();
-  }, []);
+    getMovies(page);
+  }, [page]);
+
+  const handleLoadMore = () => {
+    setPage(prev => prev + 1);
+  };
 
   return (
     <div>
@@ -24,19 +29,32 @@ export default function page() {
       >
         Download Resume
       </a>
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="mt-8 p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {movies.map((movie) => (
           <div key={movie._id} className="border rounded p-4 my-4">
             <h2 className="text-2xl font-bold mb-2">{movie.title}</h2>
             {movie.poster && (
-              <img src={movie.poster} alt={movie.title} className="w-32 h-48 rounded mb-2" />
+              <img
+                src={movie.poster}
+                alt={movie.title}
+                className="w-32 h-48 rounded mb-2"
+              />
             )}
-            <p >{movie.plot}</p>
+            <p>{movie.plot}</p>
           </div>
         ))}
+        <div className="mt-4 flex mx-auto w-full justify-center items-center">
+        
+      </div>
+      <div className="mt-4 p-2 flex mx-auto w-full justify-center items-center">
+<button 
+          onClick={handleLoadMore}
+          className="bg-green-500 text-white px-4 py-2 rounded cursor-pointer"
+        >
+          Load More
+        </button>
+        </div>
       </div>
     </div>
-  )
+  );
 }
-
-
